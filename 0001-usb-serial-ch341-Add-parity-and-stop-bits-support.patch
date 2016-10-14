@@ -1,18 +1,4 @@
-From 826333457d90018641883265a672268e1b13ab93 Mon Sep 17 00:00:00 2001
-From: Karl Palsson <karlp@tweak.net.au>
-Date: Tue, 18 Mar 2014 23:33:27 +0000
-Subject: [PATCH] usb/serial/ch341: Add parity support
 
-Based on wireshark packet traces from a windows machine.
-
-ch340 and ch341 both seem to support all parity modes, but only the ch341
-appears to support variable data bits and variable stop bits, so those are left
-unimplemented, as before.
-
-Tested on a generic usb-rs485 dongle with the chip label scratched off, and
-some Modbus/RTU devices that required various parity settings.
-
-Signed-off-by: Karl Palsson <karlp@tweak.net.au>
 ---
  drivers/usb/serial/ch341.c | 27 ++++++++++++++++++++++++++-
  1 file changed, 26 insertions(+), 1 deletion(-)
@@ -34,7 +20,7 @@ index 82371f6..afd2ec4 100644
  	/* Unimplemented:
  	 * (cflag & CSIZE) : data bits [5, 8]
 -	 * (cflag & PARENB) : parity {NONE, EVEN, ODD}
- 	 * (cflag & CSTOPB) : stop bits [1, 2]
+- 	 * (cflag & CSTOPB) : stop bits [1, 2]
  	 */
 +	/* CH340 doesn't appear to support variable stop bits or data bits */
 +	if (C_PARENB(tty)) {
@@ -59,6 +45,16 @@ index 82371f6..afd2ec4 100644
 +		dev_dbg(&port->dev, "parity = none\n");
 +		par_flags = 0xc3;
 +	}
++
++	if (C_CSTOPB(tty)) {
++		dev_dbg(&port->dev, "stop bits = two\n");
++		par_flags |= 1 << 2;
++	}
++	else {
++		dev_dbg(&port->dev, "stop bits = one\n");
++		par_flags &= ~(1 << 2);
++	}
++
 +	ch341_control_out(port->serial->dev, 0x9a, 0x2518, par_flags);
 +
  }
