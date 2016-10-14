@@ -22,7 +22,7 @@ index 82371f6..afd2ec4 100644
 -	 * (cflag & PARENB) : parity {NONE, EVEN, ODD}
 - 	 * (cflag & CSTOPB) : stop bits [1, 2]
  	 */
-+	/* CH340 doesn't appear to support variable stop bits or data bits */
++	/* CH340 doesn't appear to support variable data bits */
 +	if (C_PARENB(tty)) {
 +		if (C_PARODD(tty)) {
 +			if (tty->termios.c_cflag & CMSPAR) {
