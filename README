@@ -1,43 +1,9 @@
-notes on adding parity control support to ch341.c, the linux driver for, 
-as BSD calls it, "the worst usb serial chip in the world"
+Patch for adding parity control and stop bits support to linux ch341 driver.
 
-it actually works just fine in windows, and in linux with no-parity, at least
-for the basic usages I have for it, but yeah, it's ugly datasheet world :)
+Based on https://github.com/karlp/ch341-linux
 
-http://wch-ic.com/product/usb/ch341.asp
-
-Now to just actually edit the kernel module...
-
-Enabling debug from the kernel module:
-sudo su -c 'echo "file ch341.c +p" > /sys/kernel/debug/dynamic_debug/control'
-or
-sudo su -c 'echo "module ch341 +p" > /sys/kernel/debug/dynamic_debug/control'
-
-Building it (from a linux tree checkout matching your running kernel on
-fedora...)
-make -C /lib/modules/`uname -r`/build M=`pwd`/drivers/usb/serial modules
-
-(First time, to get that running kernel... notes to self...
-make mrproper
-cp /boot/config-xxxx .config
-make oldconfig
-make
-make modules
-sudo make modules_install
-sudo make install
-~reboot here~
-
-
-I have the YSUMA01-341A, plus what ever's inside the 485 dongle
-YSUMA01-341A  	http://item.taobao.com/item.htm?id=14541759710
-YS-CH341T	http://item.taobao.com/item.htm?id=16318219421
-YS-CH340T	http://item.taobao.com/item.htm?id=17164157198
-HL-340		http://item.taobao.com/item.htm?id=17786652096
-
-~ TO GET VirtualBox working again ...
-yum install VirtualBox-kmodsrc
-cd "somewhere" && tar -xf /usr/share/VirtualBox-kmod-4.3.18/VirtualBox-kmod-4.3.18.tar.xz
-cd vboxdrv && make && sudo make install
-cd vboxnetflt && make && sudo make install
-cd vboxnetadp && make && sudo make install
-sudo systemctl restart systemd-modules-load.service
+par_flags
+[0:1] - unknown
+[2] - stop bits. 0 - one bit, 1 - two bits
+[3:5] - parity 
+[6:7] - unknown
